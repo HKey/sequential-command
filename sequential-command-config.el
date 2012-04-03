@@ -63,6 +63,13 @@
        (seq-next)
      ,@body))
 
+(defmacro seq-define-cursor-command (source-command)
+  `(defun ,(intern (concat "seq-" (symbol-name source-command))) ()
+     (interactive)
+     (let ((seq-before-point (point)))
+       (,source-command)
+       (seq-unless-point seq-before-point))))
+
 ;; (macroexpand '(seq-unless-point (point-min) (beginning-of-buffer)))
 
 (defun seq-beginning-of-line ()
