@@ -1,4 +1,4 @@
-;;; sequential-command-config.el --- Examples of sequential-command.el 
+;;; sequential-command-config.el --- Examples of sequential-command.el
 ;; $Id: sequential-command-config.el,v 1.3 2009/03/22 09:09:58 rubikitch Exp $
 
 ;; Copyright (C) 2009  rubikitch
@@ -56,10 +56,39 @@
 (defvar sequential-command-config-version "$Id: sequential-command-config.el,v 1.3 2009/03/22 09:09:58 rubikitch Exp $")
 (require 'sequential-command)
 
+(defmacro seq-unless-point (cond-pt &rest body)
+  (declare (indent 1))
+  `(if (= (point)
+          ,cond-pt)
+       (seq-next)
+     ,@body))
+
+;; (macroexpand '(seq-unless-point (point-min) (beginning-of-buffer)))
+
+(defun seq-beginning-of-line ()
+  (interactive)
+  (seq-unless-point (point-at-bol)
+    (beginning-of-line)))
+
+(defun seq-beginning-of-buffer ()
+  (interactive)
+  (seq-unless-point (point-min)
+    (beginning-of-buffer)))
+
+(defun seq-end-of-line ()
+  (interactive)
+  (seq-unless-point (point-at-eol)
+    (end-of-line)))
+
+(defun seq-end-of-buffer ()
+  (interactive)
+  (seq-unless-point (point-max)
+    (end-of-buffer)))
+
 (define-sequential-command seq-home
-  beginning-of-line beginning-of-buffer seq-return)
+  seq-beginning-of-line seq-beginning-of-buffer seq-return)
 (define-sequential-command seq-end
-  end-of-line end-of-buffer seq-return)
+  seq-end-of-line seq-end-of-buffer seq-return)
 
 (defun seq-upcase-backward-word ()
   (interactive)

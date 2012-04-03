@@ -27,7 +27,7 @@
 ;; Integrating multiple commands into one command is sometimes
 ;; useful. Pressing C-e at the end of line is useless and adding the
 ;; other behavior in this situation is safe.
-;; 
+;;
 ;; For example, defining `my-end': if point is at the end of line, go
 ;; to the end of buffer, otherwise go to the end of line. Just evaluate it!
 ;;
@@ -104,6 +104,7 @@
 (eval-when-compile (require 'cl))
 
 (defvar seq-store-count 0)
+(defvar seq-skip-count 0)
 (defvar seq-start-position nil
   "Stores `point' and `window-start' when sequence of calls of the same
  command was started. This variable is updated by `seq-count'")
@@ -126,8 +127,10 @@ It also updates `seq-start-position'."
                  commands " and ")
                 ".")
        (interactive)
-       (call-interactively
-        (aref ,cmdary (mod (seq-count) ,(length cmdary)))))))
+       (when (> ,(length cmdary) seq-skip-count)
+         (let ((seq-skip-count seq-skip-count))
+           (call-interactively
+            (aref ,cmdary (mod (seq-count) ,(length cmdary)))))))))
 ;; (macroexpand '(define-sequential-command foo beginning-of-line beginning-of-buffer))
 
 (defun seq-return ()
@@ -135,6 +138,12 @@ It also updates `seq-start-position'."
   (interactive)
   (goto-char (car seq-start-position))
   (set-window-start (selected-window) (cdr seq-start-position)))
+
+(defun seq-next ()
+  (interactive)
+  (setq last-command this-command)
+  (incf seq-skip-count)
+  (call-interactively this-command))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;  demonstration                                                     ;;;;
