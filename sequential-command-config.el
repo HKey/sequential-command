@@ -67,30 +67,15 @@
   `(defun ,(intern (concat "seq-" (symbol-name source-command))) ()
      (interactive)
      (let ((seq-before-point (point)))
-       (,source-command)
+       (call-interactively ',source-command)
        (seq-unless-point seq-before-point))))
 
 ;; (macroexpand '(seq-unless-point (point-min) (beginning-of-buffer)))
 
-(defun seq-beginning-of-line ()
-  (interactive)
-  (seq-unless-point (point-at-bol)
-    (beginning-of-line)))
-
-(defun seq-beginning-of-buffer ()
-  (interactive)
-  (seq-unless-point (point-min)
-    (beginning-of-buffer)))
-
-(defun seq-end-of-line ()
-  (interactive)
-  (seq-unless-point (point-at-eol)
-    (end-of-line)))
-
-(defun seq-end-of-buffer ()
-  (interactive)
-  (seq-unless-point (point-max)
-    (end-of-buffer)))
+(seq-define-cursor-command beginning-of-line)
+(seq-define-cursor-command beginning-of-buffer)
+(seq-define-cursor-command end-of-line)
+(seq-define-cursor-command end-of-buffer)
 
 (define-sequential-command seq-home
   seq-beginning-of-line seq-beginning-of-buffer seq-return)
