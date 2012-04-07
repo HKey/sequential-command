@@ -56,21 +56,18 @@
 (defvar sequential-command-config-version "$Id: sequential-command-config.el,v 1.3 2009/03/22 09:09:58 rubikitch Exp $")
 (require 'sequential-command)
 
-(defmacro seq-unless-point (cond-pt &rest body)
-  (declare (indent 1))
-  `(if (= (point)
-          ,cond-pt)
-       (seq-next)
-     ,@body))
-
-(defmacro seq-define-cursor-command (source-command)
+(defmacro seq-define-cursor-command (source-command &optional comp-fn)
+  (setq comp-fn (or comp-fn '=))
   `(defun ,(intern (concat "seq-" (symbol-name source-command))) ()
      (interactive)
      (let ((seq-before-point (point)))
        (call-interactively ',source-command)
-       (seq-unless-point seq-before-point))))
+       (when (,comp-fn seq-before-point
+                       (point))
+         (goto-char seq-before-point)
+         (seq-next)))))
 
-;; (macroexpand '(seq-unless-point (point-min) (beginning-of-buffer)))
+;; (macroexpand '(seq-define-cursor-command beginning-of-line))
 
 (seq-define-cursor-command beginning-of-line)
 (seq-define-cursor-command beginning-of-buffer)
